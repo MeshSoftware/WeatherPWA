@@ -1,0 +1,17 @@
+<h2 mat-dialog-title>Add Location</h2>
+<mat-dialog-content>
+	<form *ngIf="online">
+		<mat-form-field>
+			<input name="zipCode" matInput placeholder="Zip Code" (keydown)="onKeydown($event)" [(ngModel)]="zipCode">
+		</mat-form-field>
+	</form>
+	<div *ngIf="!online">
+		<p>You appear to be offline at the moment.</p>
+		<p>You need to be online to add a new location.</p>
+	</div>
+</mat-dialog-content>
+<mat-dialog-actions>
+	<button *ngIf="online" mat-button mat-dialog-close>Cancel</button>
+	<button *ngIf="online" mat-button [mat-dialog-close]="zipCode">Ok</button>
+	<button *ngIf="!online" mat-button mat-dialog-close>Ok</button>
+</mat-dialog-actions>

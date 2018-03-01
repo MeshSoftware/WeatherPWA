@@ -1,0 +1,56 @@
+<mat-card class="location">
+	<mat-card-title>
+		<span>{{ city }}</span>
+		<span class="fill"></span>
+		<button mat-icon-button [matMenuTriggerFor]="menu">
+			<mat-icon>more_vert</mat-icon>
+		</button>
+		<mat-menu #menu="matMenu">
+			<button mat-menu-item (click)="getForecast()">
+				<mat-icon>refresh</mat-icon>
+				<span>Refresh</span>
+			</button>
+			<button mat-menu-item (click)="delete()">
+				<mat-icon>delete</mat-icon>
+				<span>Delete</span>
+			</button>
+		</mat-menu>	
+	</mat-card-title>
+	<mat-card-subtitle>
+		<span>
+			<strong>{{ state }}</strong> {{ location.zip }}</span>
+		<span class="fill"></span>
+		<span>{{ forecast.current.time }}</span>
+	</mat-card-subtitle>
+	<mat-card-content>
+		<div class="spinner" *ngIf="spinner">
+			<mat-spinner color="accent"></mat-spinner>
+		</div>
+		<div class="conditions" *ngIf="!spinner">
+			<div class="conditions-icon">
+				<i class="wi {{ forecast.current.icon }}"></i>
+			</div>
+			<div class="conditions-detail">
+				<div class="conditions-temp">
+					{{ forecast.current.temperature }} &#8457;
+				</div>
+				<div>
+					{{ forecast.current.summary }}
+				</div>
+			</div>
+		</div>
+		<div class="conditions-daily" *ngIf="!spinner">
+			<div *ngFor="let conditions of forecast.daily">
+				<div class="conditions-daily-date">
+					{{ conditions.date }}
+				</div>
+				<div class="conditions-daily-icon">
+					<i class="wi {{ conditions.icon }}"></i>
+				</div>
+				<div class="conditions-daily-temps">
+					{{ conditions.temperatureHigh }}/{{ conditions.temperatureLow }}
+				</div>
+			</div>
+		</div>
+	</mat-card-content>
+</mat-card>
