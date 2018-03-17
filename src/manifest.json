@@ -4,7 +4,7 @@
 	"name": "Weather PWA ",
 	"short_name": "Weather PWA",
 	"description": "Sample PWA App",
-	"display": "standalone",
+	"display": "fullscreen",
 	"orientation": "any",
 	"scope": "/",
 	"start_url": "index.html",
