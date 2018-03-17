@@ -4,7 +4,9 @@
 /dist
 /tmp
 /out-tsc
-/functions/lib
+
+functions/lib/index.js
+functions/lib/index.js.map
 
 # dependencies
 **/node_modules/**
@@ -42,4 +44,3 @@ testem.log
 .DS_Store
 Thumbs.db
 PWA Slides.key
-
