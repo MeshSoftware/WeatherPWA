@@ -4,6 +4,7 @@
 /dist
 /tmp
 /out-tsc
+/functions/lib
 
 # dependencies
 **/node_modules/**
@@ -41,3 +42,4 @@ testem.log
 .DS_Store
 Thumbs.db
 PWA Slides.key
+
