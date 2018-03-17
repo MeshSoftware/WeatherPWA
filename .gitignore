@@ -4,9 +4,7 @@
 /dist
 /tmp
 /out-tsc
-
-functions/lib/index.js
-functions/lib/index.js.map
+/functions/lib
 
 # dependencies
 **/node_modules/**
