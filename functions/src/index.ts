@@ -16,6 +16,19 @@ const app = express();
 
 const dayKey = moment().utc().format('YYYYMMDD');
 
+const corsWhiteList = ['https://weatherpwa-4a551.firebaseapp.com/', 'http://localhost:4200/']
+
+const corsOptions = {
+	origin: (origin, callback) => {
+		if (corsWhiteList.indexOf(origin) !== -1) {
+			callback(null, true);
+		}
+		else {
+			callback(new Error('Request Origin Not Allowed'));
+		}
+	}
+}
+
 // Distributed Counters
 // Ref: https://firebase.google.com/docs/firestore/solutions/counters
 
@@ -95,7 +108,7 @@ const incrementCounter = (api) => {
 };
 
 app.disable('x-powered-by');
-app.use(cors({ origin: true }));
+app.use(cors(corsOptions));
 
 app.get('/forecast/:lat/:lon/', async (req: express.Request, res: express.Response) => {
 
@@ -141,7 +154,7 @@ app.get('/geocoding/:location/', async (req: express.Request, res: express.Respo
 			key: functions.config().maps.key,
 			Promise: Promise
 		});
-	
+
 		mapClient.geocode({
 			address: req.params.location,
 			components: {
