@@ -6,7 +6,11 @@
 			<mat-icon>more_vert</mat-icon>
 		</button>
 		<mat-menu #menu="matMenu">
-			<button mat-menu-item (click)="getForecast()">
+			<button mat-menu-item [matMenuTriggerFor]="intervals">
+				<mat-icon>timer</mat-icon>
+				<span>Interval: {{ location.interval }}</span>
+			</button>
+			<button mat-menu-item (click)="refresh()">
 				<mat-icon>refresh</mat-icon>
 				<span>Refresh</span>
 			</button>
@@ -14,7 +18,14 @@
 				<mat-icon>delete</mat-icon>
 				<span>Delete</span>
 			</button>
-		</mat-menu>	
+		</mat-menu>
+		<mat-menu #intervals="matMenu">
+			<button mat-menu-item (click)="setInterval(1)">1 Minute</button>
+			<button mat-menu-item (click)="setInterval(5)">5 Minutes</button>
+			<button mat-menu-item (click)="setInterval(15)">15 Minutes</button>
+			<button mat-menu-item (click)="setInterval(30)">30 Minutes</button>
+			<button mat-menu-item (click)="setInterval(60)">60 Minutes</button>
+		</mat-menu>
 	</mat-card-title>
 	<mat-card-subtitle>
 		<span>

@@ -34,7 +34,7 @@ export class AppComponent implements OnInit {
 				this.locations = locations;
 			});
 		
-		this.locationService.refresh();
+		this.locationService.init();
 
 		if (this.swUpdate.isEnabled) {
 

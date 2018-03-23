@@ -3,9 +3,8 @@ import { MatSnackBar } from '@angular/material';
 import { HttpClient } from '@angular/common/http';
 import { Observable } from 'rxjs/Observable';
 import { Subject } from 'rxjs/Subject';
-import { DateTime } from 'luxon';
+
 import { Location } from '../models/location';
-import { Forecast, Conditions } from '../models/forecast';
 
 import 'rxjs/add/observable/of';
 
@@ -18,6 +17,7 @@ export class LocationService {
 	spinner: Observable<boolean>;
 
 	private locationsDict: any;
+	private workersDict: any;
 	private locationsSub: Subject<Location[]>;
 	private spinnerSub: Subject<boolean>;
 
@@ -25,6 +25,7 @@ export class LocationService {
 		private snackBar: MatSnackBar,
 		private http: HttpClient
 	) {
+		this.locationsDict = {};
 		this.locationsSub = new Subject<Location[]>();
 		this.spinnerSub = new Subject<boolean>();
 		this.locations = this.locationsSub.asObservable();
@@ -33,9 +34,8 @@ export class LocationService {
 		this.spinnerSub.next(false);
 	}
 
-	refresh() {
-		this.locationsDict = JSON.parse(localStorage.getItem(LOCAL_STORAGE_KEY) || '{}');
-		this.locationsSub.next(Object.values<Location>(this.locationsDict));
+	init() {
+		this.loadLocations();
 	}
 
 	addLocation(zipCode: string) {
@@ -56,7 +56,7 @@ export class LocationService {
 				if (geocoding.length) {
 
 					let location = new Location();
-
+					
 					location.name = geocoding[0].formatted_address.replace(` ${zipCode}, USA`, '');
 					location.zip = zipCode;
 					location.latitude = geocoding[0].geometry.location.lat;
@@ -64,8 +64,10 @@ export class LocationService {
 
 					this.locationsDict[zipCode] = location;
 
-					localStorage.setItem(LOCAL_STORAGE_KEY, JSON.stringify(this.locationsDict));
-					this.refresh();
+					this.storeLocations();
+					
+					this.locationsSub.next(Object.values<Location>(this.locationsDict));
+
 					this.spinnerSub.next(false);
 				}
 				else {
@@ -80,49 +82,48 @@ export class LocationService {
 
 		delete this.locationsDict[zipCode];
 
-		localStorage.setItem(LOCAL_STORAGE_KEY, JSON.stringify(this.locationsDict));
+		this.storeLocations();
 		
-		this.refresh();
+		this.locationsSub.next(Object.values<Location>(this.locationsDict));
 	}
 
-	getForecast(location: Location): Observable<Forecast> {
+	loadLocations() {
 
-		let forecastUrl = `https://us-central1-weatherpwa-4a551.cloudfunctions.net/api/forecast/${location.latitude}/${location.longitude}/`;
-		let subject = new Subject<Forecast>();
+		let locations = JSON.parse(localStorage.getItem(LOCAL_STORAGE_KEY) || '[]');
 
-		this.http.get<any>(forecastUrl).subscribe(data => {
+		locations.forEach(item => {
 
-			let forecast = new Forecast();
-			let dateTime = this.convertTimestamp(parseInt(data.currently.time), data.timezone);
+			let location = new Location();
 
-			forecast.timezone = data.timezone;
+			location.latitude = item.latitude;
+			location.longitude = item.longitude;
+			location.name = item.name;
+			location.zip = item.zip;
+			location.interval = item.interval || 30;
 
-			forecast.current.summary = data.currently.summary;
-			forecast.current.icon = this.getIconClass(data.currently.icon);
-			forecast.current.temperature = parseInt(data.currently.temperature);
-			forecast.current.time = dateTime.toLocaleString({ hour: '2-digit', minute: '2-digit' });
-			forecast.current.date = dateTime.toLocaleString({ month: 'short', day: '2-digit' });
-
-			data.daily.data.slice(1).forEach(daily => {
-
-				let conditions = new Conditions();
-
-				dateTime = this.convertTimestamp(parseInt(daily.time), data.timezone);
-
-				conditions.summary = daily.summary;
-				conditions.icon = this.getIconClass(daily.icon);
-				conditions.temperatureHigh = parseInt(daily.temperatureHigh);
-				conditions.temperatureLow = parseInt(daily.temperatureLow);
-				conditions.time = dateTime.toLocaleString({ hour: '2-digit', minute: '2-digit' });
-				conditions.date = dateTime.toLocaleString({ month: 'short', day: '2-digit' });
-
-				forecast.daily.push(conditions);
-			});
-
-			subject.next(forecast);
+			this.locationsDict[item.zip] = location;
 		});
 
-		return subject.asObservable();
+		this.locationsSub.next(Object.values<Location>(this.locationsDict));
+	}
+
+	storeLocations() {
+
+		let storage = [];
+		let locations = Object.values<Location>(this.locationsDict);
+
+		locations.forEach(item => {
+
+			storage.push({
+				latitude: item.latitude,
+				longitude: item.longitude,
+				name: item.name,
+				zip: item.zip,
+				interval: item.interval || 30
+			});
+		});
+
+		localStorage.setItem(LOCAL_STORAGE_KEY, JSON.stringify(storage));
 	}
 
 	private showMessage(message) {
@@ -131,40 +132,4 @@ export class LocationService {
 			duration: 3000,
 		});
 	}
-
-	private convertTimestamp(timestamp: number, timezone: string): DateTime {
-
-		var date = new Date(timestamp * 1000);
-
-		return DateTime.fromJSDate(date, { zone: timezone });
-	}
-
-	private getIconClass(icon: string): string {
-
-		switch (icon) {
-			case 'clear-day':
-				return 'wi-day-sunny';
-			case 'clear-night':
-				return 'wi-night-clear';
-			case 'rain':
-				return 'wi-rain';
-			case 'snow':
-				return 'wi-snow';
-			case 'sleet':
-				return 'wi-sleet';
-			case 'wind':
-				return 'wi-windy';
-			case 'fog':
-				return 'wi-fog';
-			case 'cloudy':
-				return 'wi-cloudy';
-			case 'partly-cloudy-day':
-				return 'wi-day-cloudy';
-			case 'partly-cloudy-night':
-				return 'wi-night-partly-cloudy';
-			default:
-				return '';
-		}
-	}
-
 }

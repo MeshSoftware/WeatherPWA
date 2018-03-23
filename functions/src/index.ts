@@ -16,10 +16,11 @@ const app = express();
 
 const dayKey = moment().utc().format('YYYYMMDD');
 
-const corsWhiteList = ['https://weatherpwa-4a551.firebaseapp.com/', 'http://localhost:4200/']
+const corsWhiteList = ['https://weatherpwa-4a551.firebaseapp.com', 'http://localhost:4200']
 
 const corsOptions = {
 	origin: (origin, callback) => {
+
 		if (corsWhiteList.indexOf(origin) !== -1) {
 			callback(null, true);
 		}

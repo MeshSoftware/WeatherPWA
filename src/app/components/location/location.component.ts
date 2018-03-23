@@ -27,21 +27,29 @@ export class LocationComponent implements OnInit {
 
 	ngOnInit() {
 
+		this.spinner = true;
+
 		let locationParts = this.location.name.split(',');
 
 		this.city = locationParts[0];
 		this.state = locationParts[1];
 		
-		this.getForecast();
+		this.location.forecast.subscribe(forecast => {
+			this.forecast = forecast;
+			this.spinner = false;
+		});
+
+		this.location.startPolling();
 	}
 
-	getForecast() {
+	setInterval(interval) {
+		this.location.setInterval(interval);
+		this.locationService.storeLocations();
+	}
+
+	refresh() {
 		this.spinner = true;
-		this.locationService.getForecast(this.location)
-			.subscribe(forecast => {
-				this.forecast = forecast;
-				this.spinner = false;
-			});
+		this.location.poll();
 	}
 
 	delete() {
